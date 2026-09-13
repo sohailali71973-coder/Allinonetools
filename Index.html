@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOHAIL X MATRIX - VIP NEON EDITION</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@600;700&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-dark: #020205;
+      --card-bg: rgba(10, 10, 18, 0.85);
+      --card-border: rgba(255, 0, 85, 0.35);
+      --neon-red: #ff0055;
+      --neon-cyan: #00f0ff;
+      --neon-gold: #ffb700;
+      --neon-purple: #9d00ff;
+      --text-main: #ffffff;
+      --text-muted: #8e95a5;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg-dark); color: var(--text-main); min-height: 100vh; padding-bottom: 120px; overflow-x: hidden; }
+
+    #matrix-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; pointer-events: none; opacity: 0.35; }
+    .flame-orb { position: fixed; border-radius: 50%; filter: blur(140px); pointer-events: none; z-index: -1; animation: pulseGlow 4s infinite alternate; }
+    .orb-1 { top: -10%; left: -10%; width: 380px; height: 380px; background: rgba(255, 0, 85, 0.3); }
+    .orb-2 { bottom: 10%; right: -10%; width: 350px; height: 350px; background: rgba(0, 240, 255, 0.25); }
+    
+    @keyframes pulseGlow { 0% { opacity: 0.4; transform: scale(1); } 100% { opacity: 0.8; transform: scale(1.15); } }
+
+    header {
+      padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      backdrop-filter: blur(25px); position: sticky; top: 0; z-index: 50;
+      background: rgba(4, 4, 10, 0.85); border-bottom: 1px solid rgba(255, 0, 85, 0.25);
+      box-shadow: 0 4px 30px rgba(255, 0, 85, 0.15);
+    }
+    .avatar-wrapper { position: relative; cursor: pointer; }
+    .avatar-wrapper::before {
+      content: ''; position: absolute; inset: -2px; border-radius: 50%;
+      background: linear-gradient(45deg, var(--neon-red), var(--neon-cyan), var(--neon-gold));
+      animation: spinBorder 3s linear infinite; z-index: 0;
+    }
+    @keyframes spinBorder { 100% { transform: rotate(360deg); } }
+    .profile-avatar-sm { position: relative; z-index: 1; width: 44px; height: 44px; border-radius: 50%; overflow: hidden; background: #000; }
+    .profile-avatar-sm img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .search-box {
+      flex: 1; background: rgba(15, 15, 25, 0.6); border: 1px solid var(--card-border);
+      border-radius: 14px; padding: 10px 16px; display: flex; align-items: center; gap: 10px;
+    }
+    .search-box input { background: transparent; border: none; outline: none; color: #fff; width: 100%; font-size: 13px; font-weight: 600; }
+
+    .filter-bar { display: flex; gap: 8px; overflow-x: auto; padding: 16px 20px 4px 20px; scrollbar-width: none; }
+    .filter-bar::-webkit-scrollbar { display: none; }
+    .pill {
+      background: rgba(20, 20, 35, 0.6); border: 1px solid rgba(255, 0, 85, 0.2);
+      padding: 8px 18px; border-radius: 12px; font-size: 11px; font-weight: 800; font-family: 'Rajdhani', sans-serif;
+      letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; white-space: nowrap; cursor: pointer; transition: 0.3s;
+    }
+    .pill.active {
+      background: linear-gradient(135deg, rgba(255, 0, 85, 0.25), rgba(0, 240, 255, 0.25));
+      border-color: var(--neon-red); color: #fff; box-shadow: 0 0 15px rgba(255, 0, 85, 0.4);
+    }
+
+    .container { padding: 16px 20px; max-width: 500px; margin: 0 auto; }
+
+    .vip-hero-card {
+      background: linear-gradient(135deg, rgba(20, 10, 25, 0.8), rgba(5, 5, 12, 0.95));
+      border: 1px solid var(--neon-red); border-radius: 24px; padding: 22px; backdrop-filter: blur(20px);
+      position: relative; overflow: hidden; margin-bottom: 22px; box-shadow: 0 0 35px rgba(255, 0, 85, 0.25);
+    }
+    .vip-badge {
+      display: inline-flex; align-items: center; gap: 6px; font-family: 'Orbitron', sans-serif;
+      font-size: 10px; font-weight: 900; color: var(--neon-gold); background: rgba(255, 183, 0, 0.1);
+      border: 1px solid rgba(255, 183, 0, 0.3); padding: 4px 12px; border-radius: 20px; margin-bottom: 12px;
+    }
+    .hero-top-flex { display: flex; justify-content: space-between; align-items: flex-start; }
+    .hero-title {
+      font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight: 900; line-height: 1.05;
+      background: linear-gradient(90deg, #fff, var(--neon-red), var(--neon-cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase;
+    }
+    .hero-counter {
+      width: 75px; height: 75px; border-radius: 18px;
+      background: radial-gradient(circle, rgba(255, 0, 85, 0.2), rgba(0, 0, 0, 0.8));
+      border: 1px solid var(--neon-red); display: flex; flex-direction: column;
+      align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
+    }
+    .counter-num { font-family: 'Orbitron', sans-serif; font-size: 22px; font-weight: 900; color: #fff; }
+    .counter-txt { font-family: 'Rajdhani', sans-serif; font-size: 9px; font-weight: 700; color: var(--neon-cyan); }
+
+    .btn-row { display: flex; gap: 10px; margin-top: 18px; }
+    .btn-fire {
+      flex: 1; background: linear-gradient(90deg, var(--neon-red), var(--neon-purple));
+      color: #fff; border: none; padding: 12px; border-radius: 12px; font-family: 'Orbitron', sans-serif;
+      font-weight: 800; font-size: 11px; cursor: pointer; box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
+    }
+    .btn-cyber {
+      flex: 1; background: rgba(255, 255, 255, 0.05); color: var(--neon-cyan);
+      border: 1px solid var(--neon-cyan); padding: 12px; border-radius: 12px; font-family: 'Orbitron', sans-serif;
+      font-weight: 800; font-size: 11px; cursor: pointer; box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+    }
+
+    .section-title {
+      font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 800;
+      color: var(--neon-red); letter-spacing: 1.5px; margin: 24px 0 12px 0;
+      display: flex; align-items: center; gap: 8px; text-transform: uppercase;
+    }
+
+    .api-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .api-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 18px; padding: 16px; backdrop-filter: blur(15px);
+      transition: all 0.3s; cursor: pointer; position: relative; overflow: hidden;
+    }
+    .api-card:hover { transform: translateY(-3px); border-color: var(--neon-cyan); box-shadow: 0 0 25px rgba(0, 240, 255, 0.3); }
+    .card-icon { width: 40px; height: 40px; border-radius: 12px; background: rgba(255, 0, 85, 0.1); border: 1px solid rgba(255, 0, 85, 0.3); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--neon-red); margin-bottom: 10px; }
+    .card-title { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-desc { font-size: 10px; color: var(--text-muted); line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+    .pagination-bar { display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: 24px; flex-wrap: wrap; }
+    .page-btn {
+      background: rgba(15, 15, 25, 0.8); border: 1px solid var(--neon-red); color: #fff;
+      padding: 6px 12px; border-radius: 8px; font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 800; cursor: pointer; transition: 0.3s;
+    }
+    .page-btn.active { background: var(--neon-red); box-shadow: 0 0 15px rgba(255, 0, 85, 0.5); }
+    .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    /* PROFILE MODAL OVERLAY */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(2, 2, 5, 0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 20px;
+      opacity: 0; pointer-events: none; transition: all 0.3s ease;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    
+    .modal-card {
+      background: #090a14; border: 1px solid var(--neon-red); border-radius: 28px;
+      width: 100%; max-width: 400px; overflow: hidden; box-shadow: 0 0 50px rgba(255, 0, 85, 0.4);
+      transform: scale(0.85); transition: 0.3s ease; position: relative;
+    }
+    .modal-overlay.active .modal-card { transform: scale(1); }
+    
+    .modal-banner { 
+      height: 150px; position: relative; overflow: hidden; 
+      background: radial-gradient(circle at center, #150024 0%, #05050a 100%);
+      border-bottom: 1px solid var(--neon-red);
+    }
+    .hacker-grid {
+      position: absolute; width: 200%; height: 200%; top: -50%; left: -50%;
+      background-image: linear-gradient(rgba(255,0,85,0.15) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0,240,255,0.15) 1px, transparent 1px);
+      background-size: 20px 20px;
+      animation: gridMove 8s linear infinite;
+    }
+    @keyframes gridMove { 0% { transform: translateY(0); } 100% { transform: translateY(20px); } }
+    .hacker-text {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 900; color: var(--neon-cyan);
+      letter-spacing: 3px; text-shadow: 0 0 10px var(--neon-cyan); text-align: center; width: 100%;
+    }
+    
+    .close-btn { 
+      position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.6); border: 1px solid #fff; 
+      width: 34px; height: 34px; border-radius: 50%; color: #fff; display: flex; align-items: center; 
+      justify-content: center; cursor: pointer; font-size: 14px; font-weight: bold; z-index: 10;
+    }
+
+    .modal-body { padding: 0 24px 24px 24px; text-align: center; margin-top: -45px; position: relative; z-index: 2; }
+    .avatar-lg { 
+      width: 90px; height: 90px; border-radius: 50%; border: 4px solid var(--neon-cyan); 
+      margin: 0 auto 12px auto; overflow: hidden; background: #000; box-shadow: 0 0 25px rgba(0, 240, 255, 0.6); 
+    }
+    .avatar-lg img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    
+    .btn-ig {
+      display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+      background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); color: #fff; text-decoration: none;
+      padding: 12px; border-radius: 12px; font-weight: 800; font-family: 'Orbitron', sans-serif; font-size: 11px; margin-top: 12px; box-shadow: 0 0 20px rgba(220, 39, 67, 0.4);
+    }
+    .btn-thanks {
+      display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+      background: linear-gradient(90deg, #00f0ff, #9d00ff); color: #000; text-decoration: none;
+      padding: 12px; border-radius: 12px; font-weight: 900; font-family: 'Orbitron', sans-serif; font-size: 11px; margin-top: 8px; box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+    }
+
+    .console-drawer {
+      position: fixed; bottom: 0; left: 0; right: 0; background: #05050a;
+      border-top: 2px solid var(--neon-cyan); border-radius: 24px 24px 0 0;
+      padding: 22px; z-index: 1000; transform: translateY(100%); transition: 0.4s ease;
+      box-shadow: 0 -20px 50px rgba(0, 240, 255, 0.2); max-width: 500px; margin: 0 auto;
+    }
+    .console-drawer.open { transform: translateY(0); }
+    .drawer-handle { width: 36px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 10px; margin: 0 auto 16px auto; }
+    .console-label { font-size: 10px; color: var(--neon-cyan); font-family: 'Orbitron', sans-serif; margin-bottom: 4px; display: block; }
+    .console-input { width: 100%; background: rgba(0,0,0,0.8); border: 1px solid var(--neon-cyan); border-radius: 10px; padding: 10px; color: #fff; font-size: 12px; outline: none; margin-bottom: 10px; }
+    .exec-btn { width: 100%; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple)); border: none; border-radius: 12px; padding: 12px; color: #000; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 11px; cursor: pointer; margin-top: 4px; }
+    .terminal-screen { margin-top: 10px; background: #000; border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 10px; padding: 10px; font-family: monospace; font-size: 11px; color: var(--neon-cyan); max-height: 180px; overflow-y: auto; white-space: pre-wrap; }
+
+    .bottom-dock {
+      position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%);
+      width: calc(100% - 32px); max-width: 460px; background: rgba(8, 8, 16, 0.9);
+      backdrop-filter: blur(20px); border: 1px solid var(--neon-red); border-radius: 20px; padding: 4px;
+      display: flex; gap: 4px; z-index: 100; box-shadow: 0 0 25px rgba(255, 0, 85, 0.25);
+    }
+    .dock-tab {
+      flex: 1; border: none; background: transparent; color: var(--text-muted);
+      padding: 8px 0; border-radius: 14px; font-size: 10px; font-weight: 800; font-family: 'Orbitron', sans-serif;
+      display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; transition: 0.3s;
+    }
+    .dock-tab.active { background: rgba(255, 0, 85, 0.2); color: var(--neon-red); }
+  </style>
+</head>
+<body>
+
+  <div class="flame-orb orb-1"></div>
+  <div class="flame-orb orb-2"></div>
+  <canvas id="matrix-canvas"></canvas>
+
+  <header>
+    <div class="avatar-wrapper" onclick="openProfile()">
+      <div class="profile-avatar-sm">
+        <img src="https://i.ibb.co/QvMstrwL/file-000000001d648211a61b10689b58e1c6.png" alt="PFP">
+      </div>
+    </div>
+    <div class="search-box">
+      <span><i class="fa-solid fa-magnifying-glass" style="color:var(--neon-red); font-size:12px;"></i></span>
+      <input type="text" id="searchInput" onkeyup="onSearchChange()" placeholder="Search VIP Endpoints...">
+    </div>
+  </header>
+
+  <div class="filter-bar" id="categoryBar"></div>
+
+  <div class="container">
+    <div class="vip-hero-card">
+      <div class="vip-badge"><i class="fa-solid fa-gem"></i> VIP SYSTEM ONLINE</div>
+      <div class="hero-top-flex">
+        <div>
+          <div class="hero-title">SOHAIL X<br>MATRIX</div>
+        </div>
+        <div class="hero-counter">
+          <div class="counter-num" id="totalCount">0</div>
+          <div class="counter-txt">ACTIVE</div>
+        </div>
+      </div>
+      <p style="font-size: 11px; color: var(--text-muted); margin-top: 10px; line-height: 1.4;">
+        High-performance public APIs endpoint system. Select any target route to execute live requests.
+      </p>
+      <div class="btn-row">
+        <button class="btn-fire" onclick="openConsole('GPT Logic', 'gptlogic', 'hii')">🔥 LAUNCH TERMINAL</button>
+        <button class="btn-cyber" onclick="openProfile()">👤 OWNER CARD</button>
+      </div>
+    </div>
+
+    <div id="dynamicContainer"></div>
+    <div class="pagination-bar" id="paginationBar"></div>
+  </div>
+
+  <div class="console-drawer" id="consoleDrawer">
+    <div class="drawer-handle"></div>
+    <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center;">
+      <div id="drawerTitle" style="font-family:'Orbitron',sans-serif; font-size:12px; color:var(--neon-cyan);">⚡ CONSOLE TERMINAL</div>
+      <span onclick="closeConsole()" style="color:#fff; cursor:pointer; font-size:14px;"><i class="fa-solid fa-xmark"></i></span>
+    </div>
+    
+    <span class="console-label">API Base Endpoint:</span>
+    <input type="text" class="console-input" id="baseApiInput" readonly style="color:var(--neon-gold);">
+    
+    <span class="console-label" id="paramLabel">Query / Link Parameter:</span>
+    <input type="text" class="console-input" id="queryParamInput" placeholder="Enter parameters or query...">
+    
+    <button class="exec-btn" onclick="executeAPI()">EXECUTE MATRIX ROUTE ⚡</button>
+    <div class="terminal-screen" id="terminalOut">// Terminal waiting for payload...</div>
+  </div>
+
+  <div class="modal-overlay" id="profileModal">
+    <div class="modal-card">
+      <div class="modal-banner">
+        <div class="hacker-grid"></div>
+        <div class="close-btn" onclick="closeProfile()"><i class="fa-solid fa-xmark"></i></div>
+        <div class="hacker-text-wrap">
+          <div class="hacker-text">&gt;&gt; SECURE_ACCESS_GRANTED // SOHAIL</div>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="avatar-lg">
+          <img src="https://i.ibb.co/QvMstrwL/file-000000001d648211a61b10689b58e1c6.png" alt="Owner Profile">
+        </div>
+        <h2 style="font-family:'Orbitron',sans-serif; font-size:18px;">SOHAI_L <span style="color:var(--neon-red);">✓</span></h2>
+        <div style="font-family:'Rajdhani',sans-serif; font-size:12px; color:var(--neon-cyan); font-weight:700; margin:4px 0 10px 0;">CYBER ARCHITECT & DEVELOPER</div>
+        <p style="font-size:11px; color:var(--text-muted); line-height:1.4;">Welcome to Sohail X Matrix. Access high-speed endpoints with seamless integration.</p>
+        <a href="https://instagram.com/Clip2editz" target="_blank" class="btn-ig"><i class="fa-brands fa-instagram"></i> INSTAGRAM: @Clip2editz</a>
+        <a href="https://ig.me/m/Clip2editz?text=Thanks%20%F0%9F%92%95%F0%9F%92%98" target="_blank" class="btn-thanks"><i class="fa-solid fa-heart"></i> SEND THANKS TO DEVELOPER</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-dock">
+    <button class="dock-tab active"><span><i class="fa-solid fa-magnifying-glass"></i></span>EXPLORE</button>
+    <button class="dock-tab" onclick="openConsole('GPT Logic', 'gptlogic', 'hii')"><span><i class="fa-solid fa-terminal"></i></span>CONSOLE</button>
+    <button class="dock-tab" onclick="openProfile()"><span><i class="fa-solid fa-user-secret"></i></span>PROFILE</button>
+  </div>
+
+  <script>
+    const apiData = [
+      { name: "GPT Logic", endpoint: "gptlogic", category: "AI Matrix", desc: "Advanced logic conversational AI model.", icon: "fa-brain", sample: "q=hii&prompt=be+friendly" },
+      { name: "Llama Meta", endpoint: "llama-meta", category: "AI Matrix", desc: "Meta's open-source Llama model wrapper.", icon: "fa-microchip", sample: "q=hii" },
+      { name: "Cohere AI", endpoint: "cohere", category: "AI Matrix", desc: "Cohere language processing API.", icon: "fa-network-wired", sample: "q=hii" },
+      { name: "DeepSeek V3", endpoint: "deepseek-v3", category: "AI Matrix", desc: "DeepSeek V3 intelligent text generation.", icon: "fa-cube", sample: "q=hii" },
+      { name: "DeepSeek R1", endpoint: "deepseek-r1", category: "AI Matrix", desc: "DeepSeek R1 reasoning assistant model.", icon: "fa-robot", sample: "q=hii" },
+      { name: "Google Gemini", endpoint: "gemini", category: "AI Matrix", desc: "Google Gemini multimodal intelligence.", icon: "fa-star", sample: "q=hello" },
+
+      { name: "YouTube Video Info", endpoint: "ytvi", category: "Extractors & DL", desc: "Extract YouTube video metadata & details.", icon: "fa-video", sample: "url=https://youtu.be/3ca64kJjhEU" },
+      { name: "YouTube Audio Info", endpoint: "ytau", category: "Extractors & DL", desc: "Extract YouTube audio metadata.", icon: "fa-music", sample: "url=https://youtu.be/3ca64kJjhEU" },
+      { name: "GitHub Cloner", endpoint: "gitclone", category: "Extractors & DL", desc: "Download public GitHub repositories.", icon: "fa-code-branch", sample: "url=https://github.com/Lord-Samuel/rebix-db" },
+      { name: "YouTube Play Stream", endpoint: "ytplay", category: "Extractors & DL", desc: "Stream media via search query.", icon: "fa-play", sample: "q=Limitless" },
+      { name: "YouTube Video DL", endpoint: "ytv", category: "Extractors & DL", desc: "Download full YouTube videos.", icon: "fa-download", sample: "url=https://youtu.be/3ca64kJjhEU" },
+      { name: "YouTube MP3/Format", endpoint: "ytdl", category: "Extractors & DL", desc: "Convert & download YT media formats.", icon: "fa-file-audio", sample: "format=mp3&url=https://youtu.be/3ca64kJjhEU" },
+      { name: "YouTube Audio DL", endpoint: "yta", category: "Extractors & DL", desc: "Direct YouTube audio extractor.", icon: "fa-volume-high", sample: "url=https://youtu.be/3ca64kJjhEU" },
+      { name: "Apple Music", endpoint: "applemusic", category: "Extractors & DL", desc: "Search and fetch Apple Music tracks.", icon: "fa-headphones", sample: "q=sacrifice" },
+      { name: "Facebook DL", endpoint: "facebook", category: "Extractors & DL", desc: "Download Facebook reels and videos.", icon: "fa-facebook", sample: "url=https://www.facebook.com/share/r/12Jhv1vQ85G/" },
+      { name: "TikTok DL v2", endpoint: "tiktok2", category: "Extractors & DL", desc: "No-watermark TikTok video downloader.", icon: "fa-video", sample: "url=https://vt.tiktok.com/ZSrRVYRUJ/" },
+      { name: "Instagram DL", endpoint: "igdl", category: "Extractors & DL", desc: "Download Instagram reels & posts.", icon: "fa-instagram", sample: "quality=480&url=https://www.instagram.com/reel/DWKV8YDiMRy/?utm_source=ig_web_copy_link&igsh=NTc4MTIwNjQ2YQ==" },
+      { name: "X / Twitter DL", endpoint: "xdl", category: "Extractors & DL", desc: "Download Twitter/X media posts.", icon: "fa-x-twitter", sample: "url=https://x.com/i/status/2047556140410482874" },
+
+      { name: "YouTube Search", endpoint: "yts", category: "Data Search", desc: "Search YouTube videos and channels.", icon: "fa-magnifying-glass", sample: "q=Tamako+edit" },
+      { name: "Song Lyrics v2", endpoint: "lyrics2", category: "Data Search", desc: "Alternate database for song lyrics.", icon: "fa-book-open", sample: "q=ozeba" },
+      { name: "Song Lyrics", endpoint: "lyrics", category: "Data Search", desc: "Fetch track lyrics instantly.", icon: "fa-music", sample: "q=ozeba" },
+      { name: "Spotify Search", endpoint: "spotifysearch", category: "Data Search", desc: "Search tracks and albums on Spotify.", icon: "fa-spotify", sample: "q=limitless" },
+      { name: "TikTok Search", endpoint: "tiktoksearch", category: "Data Search", desc: "Search viral TikTok content.", icon: "fa-video", sample: "q=pela" },
+      { name: "NPM Search", endpoint: "npmsearch", category: "Data Search", desc: "Search npm packages & documentation.", icon: "fa-npm", sample: "q=baileys" },
+      { name: "Pinterest Search", endpoint: "pinterest", category: "Data Search", desc: "Fetch aesthetic images from Pinterest.", icon: "fa-pinterest", sample: "q=anime" },
+
+      { name: "Anime Search", endpoint: "animesearch", category: "Anime & Media", desc: "Search anime database for series.", icon: "fa-tv", sample: "q=naruto" },
+      { name: "Anime Downloader", endpoint: "anidl", category: "Anime & Media", desc: "Download anime video streams.", icon: "fa-film", sample: "url=https://www.bilibili.tv/id/video/4794964840158720" },
+      { name: "Anime Search Alt", endpoint: "anisearch", category: "Anime & Media", desc: "Alternative anime lookup module.", icon: "fa-compass", sample: "q=naruto" },
+
+      { name: "TikTok Stalker", endpoint: "tiktokstalk", category: "Stalker Tools", desc: "Inspect TikTok user profiles & stats.", icon: "fa-user-secret", sample: "q=ronaldo" },
+
+      { name: "OCR Extractor", endpoint: "ocr", category: "Utilities", desc: "Extract readable text from images.", icon: "fa-font", sample: "url=https://sam-cdn.zone.id/files/55ykd6.jpg" },
+      { name: "Random Image", endpoint: "randomimage", category: "Utilities", desc: "Fetch random high-res images.", icon: "fa-image", sample: "" },
+      { name: "Image Enhancer", endpoint: "enhance", category: "Utilities", desc: "Upscale and enhance image quality.", icon: "fa-wand-magic-sparkles", sample: "url=https://i.pinimg.com/736x/f9/0f/85/f90f8504271cedf0681a297a7d69c593.jpg" },
+      { name: "Cloudflare Bypass", endpoint: "cfbypass", category: "Utilities", desc: "Bypass Cloudflare protection layers.", icon: "fa-shield-halved", sample: "url=https://example.com&mode=source" },
+      { name: "APK Downloader", endpoint: "apkdl", category: "Utilities", desc: "Download Android APK packages.", icon: "fa-android", sample: "url=https://apkcombo.app/whatsapp-messenger/com.whatsapp" },
+      { name: "APK Search", endpoint: "apksearch", category: "Utilities", desc: "Search APK application repository.", icon: "fa-box-archive", sample: "q=whatsapp" },
+      { name: "AI Image Generator", endpoint: "pollinations/prompt/naruto%20from%20naruto", category: "Utilities", desc: "Generate AI images via Pollinations.", icon: "fa-palette", sample: "width=3840&height=2160&nologo=true&enhance=true" },
+
+      { name: "Translator", endpoint: "translate", category: "New", desc: "Translate text across global languages.", icon: "fa-language", sample: "text=I+love+you&to=id" },
+      { name: "TinyURL Shortener", endpoint: "tinyurl", category: "New", desc: "Shorten lengthy links instantly.", icon: "fa-link", sample: "url=https://google.com" },
+      { name: "Website Screenshot", endpoint: "ssweb", category: "New", desc: "Capture full-page website screenshots.", icon: "fa-camera", sample: "url=https://google.com&device=full" },
+      { name: "Random Facts", endpoint: "facts", category: "New", desc: "Discover fascinating random trivia facts.", icon: "fa-lightbulb", sample: "" },
+      { name: "Dev Wallpaper", endpoint: "wallpaper/programming", category: "New", desc: "Coding & hacker aesthetics wallpapers.", icon: "fa-code", sample: "" },
+      { name: "Random Wallpaper", endpoint: "wallpaper", category: "New", desc: "High-definition dynamic wallpapers.", icon: "fa-desktop", sample: "" },
+      { name: "Blue Archive", endpoint: "bluearchive", category: "New", desc: "Blue Archive character graphics.", icon: "fa-gamepad", sample: "" },
+      { name: "Couple DP", endpoint: "couplepp", category: "New", desc: "Matching couple profile pictures.", icon: "fa-user-group", sample: "" },
+      { name: "Waifu Module", endpoint: "waifu", category: "New", desc: "Anime waifu imagery feed.", icon: "fa-heart", sample: "" }
+    ];
+
+    let currentCategory = 'all';
+    let currentPage = 1;
+    const itemsPerPage = 8;
+
+    function renderFilters() {
+      const categories = ['all', ...new Set(apiData.map(item => item.category))];
+      const categoryBar = document.getElementById('categoryBar');
+      categoryBar.innerHTML = categories.map(cat => `
+        <div class="pill ${cat === currentCategory ? 'active' : ''}" onclick="filterCat('${cat}')">
+          ${cat === 'all' ? '⚡ ALL ROUTES' : cat}
+        </div>
+      `).join('');
+    }
+
+    function filterCat(cat) {
+      currentCategory = cat;
+      currentPage = 1;
+      renderFilters();
+      renderAPIs();
+    }
+
+    function onSearchChange() {
+      currentPage = 1;
+      renderAPIs();
+    }
+
+    function renderAPIs() {
+      const searchVal = document.getElementById('searchInput').value.toLowerCase();
+      const container = document.getElementById('dynamicContainer');
+      container.innerHTML = '';
+
+      const filtered = apiData.filter(item => {
+        const matchesCat = currentCategory === 'all' || item.category === currentCategory;
+        const matchesSearch = item.name.toLowerCase().includes(searchVal) || item.desc.toLowerCase().includes(searchVal);
+        return matchesCat && matchesSearch;
+      });
+
+      document.getElementById('totalCount').innerText = filtered.length;
+
+      const totalPages = Math.ceil(filtered.length / itemsPerPage);
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const paginatedItems = filtered.slice(startIndex, startIndex + itemsPerPage);
+
+      const grouped = {};
+      paginatedItems.forEach(item => {
+        if (!grouped[item.category]) grouped[item.category] = [];
+        grouped[item.category].push(item);
+      });
+
+      for (const [catName, items] of Object.entries(grouped)) {
+        const sectionHTML = `
+          <div class="section-title">⚡ ${catName}</div>
+          <div class="api-grid">
+            ${items.map(item => `
+              <div class="api-card" onclick="openConsole('${item.name}', '${item.endpoint}', '${item.sample}')">
+                <div class="card-icon"><i class="fa-solid ${item.icon}"></i></div>
+                <div class="card-title">${item.name}</div>
+                <div class="card-desc">${item.desc}</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        container.insertAdjacentHTML('beforeend', sectionHTML);
+      }
+
+      renderPagination(totalPages);
+    }
+
+    function renderPagination(totalPages) {
+      const paginationBar = document.getElementById('paginationBar');
+      if (totalPages <= 1) {
+        paginationBar.innerHTML = '';
+        return;
+      }
+
+      let html = `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">PREV</button>`;
+      for (let i = 1; i <= totalPages; i++) {
+        html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+      }
+      html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">NEXT</button>`;
+
+      paginationBar.innerHTML = html;
+    }
+
+    function changePage(page) {
+      currentPage = page;
+      renderAPIs();
+      window.scrollTo({ top: 250, behavior: 'smooth' });
+    }
+
+    function openConsole(name, endpoint, sample) {
+      document.getElementById('drawerTitle').innerText = `⚡ RUNNING: ${name.toUpperCase()}`;
+      document.getElementById('baseApiInput').value = `https://r-bots-free-apis.co08.art/api/${endpoint}`;
+      document.getElementById('queryParamInput').value = sample || '';
+      document.getElementById('terminalOut').innerText = '// Terminal waiting for payload...';
+      document.getElementById('consoleDrawer').classList.add('open');
+    }
+    function closeConsole() { document.getElementById('consoleDrawer').classList.remove('open'); }
+
+    async function executeAPI() {
+      let baseUrl = document.getElementById('baseApiInput').value;
+      let queryVal = document.getElementById('queryParamInput').value.trim();
+      let out = document.getElementById('terminalOut');
+
+      let finalUrl = baseUrl;
+      if (queryVal) {
+        if (queryVal.includes('=')) {
+          finalUrl = `${baseUrl}?${queryVal}`;
+        } else {
+          finalUrl = `${baseUrl}?q=${encodeURIComponent(queryVal)}&url=${encodeURIComponent(queryVal)}&text=${encodeURIComponent(queryVal)}`;
+        }
+      }
+
+      out.innerHTML = "⏳ FETCHING RESPONSE FROM MATRIX...";
+      
+      let responseText = "";
+      try {
+        let res = await fetch(finalUrl);
+        let contentType = res.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          let data = await res.json();
+          responseText = JSON.stringify(data, null, 2);
+          
+          let extractedUrl = data.url || data.dl || data.download || (typeof data.result === 'string' && data.result.startsWith('http') ? data.result : null);
+          
+          if (extractedUrl) {
+            out.innerHTML = `<div>${escapeHtml(responseText)}</div><br><a href="${extractedUrl}" target="_blank" download style="display:block; text-align:center; background:var(--neon-red); color:#fff; padding:12px; border-radius:10px; font-family:'Orbitron',sans-serif; font-weight:900; text-decoration:none; box-shadow:0 0 15px rgba(255,0,85,0.5);">📥 CLICK HERE TO DOWNLOAD FILE</a>`;
+            return;
+          }
+        } else {
+          responseText = await res.text();
+        }
+      } catch(err) {
+        try {
+          let proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(finalUrl)}`;
+          let proxyRes = await fetch(proxyUrl);
+          responseText = await proxyRes.text();
+        } catch(proxyErr) {
+          out.innerText = "❌ Connection Error: " + proxyErr.message;
+          return;
+        }
+      }
+
+      if (responseText.startsWith('http')) {
+        out.innerHTML = `<a href="${responseText}" target="_blank" download style="display:block; text-align:center; background:var(--neon-red); color:#fff; padding:12px; border-radius:10px; font-family:'Orbitron',sans-serif; font-weight:900; text-decoration:none; box-shadow:0 0 15px rgba(255,0,85,0.5);">📥 CLICK HERE TO DOWNLOAD FILE</a>`;
+      } else {
+        out.innerText = responseText.slice(0, 1500);
+      }
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function openProfile() { document.getElementById('profileModal').classList.add('active'); }
+    function closeProfile() { document.getElementById('profileModal').classList.remove('active'); }
+
+    const canvas = document.getElementById('matrix-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const chars = "010101SOHAIXMATRIX";
+    const fontSize = 12;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+
+    function drawMatrix() {
+      ctx.fillStyle = "rgba(2, 2, 5, 0.08)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#ff0055";
+      ctx.font = fontSize + "px Orbitron";
+      for (let i = 0; i < drops.length; i++) {
+        const text = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+    }
+    setInterval(drawMatrix, 40);
+
+    renderFilters();
+    renderAPIs();
+  </script>
+</body>
+</html>
